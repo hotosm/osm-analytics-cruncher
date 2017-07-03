@@ -6,6 +6,40 @@ Backend for an OSM data analysis tool. Uses [osm-qa-tiles](https://osmlab.github
 Usage
 -----
 
+## With docker
+
+You can execute the cruncher inside of docker. 
+* First you need install docker and docker-compose  in your machine:
+
+** OS X
+[https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
+
+** Linux
+[https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
+
+** Windows
+[https://docs.docker.com/docker-for-windows/install/](https://docs.docker.com/docker-for-windows/install/)
+
+
+* Second, you execute the docker.sh. This script has 2 possibilities:
+
+** gen: Generate mbtile. The mbtile result is saved in results folder in the root.
+
+```bash
+
+./docker.sh gen
+
+```
+
+** server: Run tile server with the mbtile pass as parameter (mbtile must be saved in results folder)
+
+```bash
+
+./docker server buildings.mbtile
+
+```
+
+
 #### `./experiences.sh <path-to-osmqatiles.mbtiles>`
 
 Generates a user experience file (`experiences.json`) to be used with `run.sh`.
@@ -19,6 +53,8 @@ Output is `<job>.mbtiles`.
 #### `./hotprojects.sh`
 
 Fetches the list of HOT projects outlines from the [tasking manager API](https://github.com/hotosm/osm-tasking-manager2/wiki/API). Generates vector tiles of the raw geometries and a geojson of simplified outlines (convex hulls limited to 40 vertices). Publishes the results on Amazon S3.
+
+
 
 Serving
 -------

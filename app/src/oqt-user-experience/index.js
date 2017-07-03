@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-var tileReduce = require('tile-reduce');
+var tileReduce = require('@mapbox/tile-reduce');
 var path = require('path');
 
 var mbtilesPath = process.argv[2] || "osm.mbtiles";
