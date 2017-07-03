@@ -15,7 +15,7 @@ You can execute the cruncher inside of docker.
 [https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
 
 ** Linux
-[https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
+[https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
 
 ** Windows
 [https://docs.docker.com/docker-for-windows/install/](https://docs.docker.com/docker-for-windows/install/)
