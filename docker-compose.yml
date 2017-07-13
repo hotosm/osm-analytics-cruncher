@@ -1,0 +1,9 @@
+version: '2'
+services:
+  cruncher:
+    build: .
+    command: gen
+    ports:
+      - 7778:7778
+    volumes:
+     - ./results:/opt/osm-cruncher/app/results
