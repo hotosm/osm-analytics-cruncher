@@ -30,7 +30,7 @@ function cleanup {
 # npm install --silent
 
 # update hot projects data
-# ./hotprojects.sh || true
+./hotprojects.sh || true
 
 # download latest planet from osm-qa-tiles
 curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
@@ -44,18 +44,24 @@ curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --sil
 cp buildings.mbtiles $RESULTS_DIR/buildings.mbtiles.tmp
 rm $RESULTS_DIR/buildings.mbtiles -f
 mv $RESULTS_DIR/buildings.mbtiles.tmp $RESULTS_DIR/buildings.mbtiles
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm buildings.mbtiles
 # highways
 ./crunch.sh planet.mbtiles highways 32
 cp highways.mbtiles $RESULTS_DIR/highways.mbtiles.tmp
 rm $RESULTS_DIR/highways.mbtiles -f
 mv $RESULTS_DIR/highways.mbtiles.tmp $RESULTS_DIR/highways.mbtiles
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm highways.mbtiles
 # waterways
 ./crunch.sh planet.mbtiles waterways 32
 cp waterways.mbtiles $RESULTS_DIR/waterways.mbtiles.tmp
 rm $RESULTS_DIR/waterways.mbtiles -f
 mv $RESULTS_DIR/waterways.mbtiles.tmp $RESULTS_DIR/waterways.mbtiles
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm waterways.mbtiles
 
 rm planet.mbtiles

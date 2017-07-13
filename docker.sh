@@ -6,7 +6,7 @@ case "$1" in
     gen)
         echo "Running Cruncher"
         docker build -t osm-analytics-cruncher .
-        docker run -i -t -v $(pwd)/results:/opt/osm-cruncher/app/results osm-analytics-cruncher  gen
+        docker run -i -t -v $(pwd)/results:/opt/osm-cruncher/app/results osm-analytics-cruncher gen
         ;;
     server)
         echo "Running tile server"

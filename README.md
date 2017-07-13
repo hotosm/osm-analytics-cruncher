@@ -1,73 +1,63 @@
-osm data analyis tool backend
+OSM data analysis tool backend
 =============================
 
 Backend for an OSM data analysis tool. Uses [osm-qa-tiles](https://osmlab.github.io/osm-qa-tiles/) as input data.
 
-Usage
------
+### Requirements
 
-## With docker
+If you want to use the cruncher natively, you'll need:
+- NodeJS
+- NPM
 
-You can execute the cruncher inside of docker. 
-* First you need install docker and docker-compose  in your machine:
+Be sure to run `npm install` before running the commands bellow
 
-** OS X
-[https://docs.docker.com/docker-for-mac/install/](https://docs.docker.com/docker-for-mac/install/)
+Alternatively, you can install and use `docker` and `docker-compose`.
 
-** Linux
-[https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/](https://docs.docker.com/engine/installation/linux/docker-ce/ubuntu/)
+# Usage
 
-** Windows
-[https://docs.docker.com/docker-for-windows/install/](https://docs.docker.com/docker-for-windows/install/)
+The tool is split in two parts: data generation and serving.
 
+## Data generation - Main commands
 
-* Second, you execute the docker.sh. This script has 2 possibilities:
+The data generation is handled by multiple commands, each responsible for a subset of the whole data. 
+Some convenience commands are provided, which run all tasks at once. Feel free to fine-tune them to your needs.
 
-** gen: Generate mbtile. The mbtile result is saved in results folder in the root.
+### Natively
 
-```bash
+See `app/run.sh` for an example invocation of all the data generation scripts.
 
-./docker.sh gen
+### Docker
 
-```
+The `./docker.sh gen` command will run the above `app/run.sh` command in a docker environment.
 
-** server: Run tile server with the mbtile pass as parameter (mbtile must be saved in results folder)
+## Data generation - Command breakdown
 
-```bash
+There are multiple commands that generate different parts of the data:
 
-./docker server buildings.mbtile
-
-```
-
-
-#### `./experiences.sh <path-to-osmqatiles.mbtiles>`
+### `app/experiences.sh <path-to-osmqatiles.mbtiles>`
 
 Generates a user experience file (`experiences.json`) to be used with `run.sh`.
 
-#### `./crunch.sh <path-to-osmqatiles.mbtiles> <job> [<binningfactor>]`
+### `app/crunch.sh <path-to-osmqatiles.mbtiles> <job> [<binningfactor>]`
 
 Creates vector tiles for a specific feature type (e.g. buildings). Requires an experience data file (see above). A *job* is defined in the corresponding `<job>.json` file. See `building.json` for an example. The *binningfactor* determines how fine the grid at lower zoom levels should be calculated (default: 64).
 
 Output is `<job>.mbtiles`.
 
-#### `./hotprojects.sh`
+### `app/hotprojects.sh`
 
 Fetches the list of HOT projects outlines from the [tasking manager API](https://github.com/hotosm/osm-tasking-manager2/wiki/API). Generates vector tiles of the raw geometries and a geojson of simplified outlines (convex hulls limited to 40 vertices). Publishes the results on Amazon S3.
 
+## Serving data
 
+### Natively
 
-Serving
--------
+The `app/server/serve.js` script is an example for how to provide the data to the osm-analytics frontend over the web.
 
-The script in the `server` directory is an example for how to provide the data to the osm-analytics frontend over the web.
+### With docker
 
-Updating
---------
+You can use the `./docker server buildings.mbtile` command to serve a pre-computed `mbtile` file. The `mbtile` file must be available in the `./results` local folder.
 
-See `run.sh` for an example invocation of the scripts above and integration with the example server.
-
-
-Walkthrough
------------
+# Walkthrough
 
 An overview of all steps required to implement an instance of osm-analytics can be found [here](https://gist.github.com/tyrasd/5f17d10a5b9ab1c8d2409238a5e0a54b) (work in progress)
