@@ -30,7 +30,8 @@ function cleanup {
 # npm install --silent
 
 # update hot projects data
-./hotprojects.sh || true
+# TODO: Run in the new cruncher
+# ./hotprojects.sh || true
 
 # download latest planet from osm-qa-tiles
 curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles

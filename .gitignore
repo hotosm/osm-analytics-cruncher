@@ -4,3 +4,4 @@ intermediate/
 hotprojects.geojson
 experiences.json
 node_modules
+npm-debug.log

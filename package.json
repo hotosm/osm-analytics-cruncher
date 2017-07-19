@@ -22,7 +22,6 @@
   },
   "homepage": "https://github.com/hotosm/osm-analytics-cruncher",
   "dependencies": {
-    "@mapbox/tile-reduce": "git+https://github.com/tyrasd/tile-reduce.git#7a5d70664d6e0a7f9db80edf7d353171ca98ec86",
     "binary-split": "^1.0.1",
     "geojson-vt": "^2.4.0",
     "lineclip": "^1.1.5",

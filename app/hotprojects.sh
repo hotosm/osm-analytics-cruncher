@@ -1,7 +1,8 @@
 #!/bin/bash -ex
 
 ./hotprojects.js --raw > hotprojects.raw.geojson
-./node_modules/mapbox-tile-copy/bin/mapbox-tile-copy.js --minzoom=1 --maxzoom=9 hotprojects.raw.geojson s3://tm-projects-vt/tiles/{z}/{x}/{y}.pbf
+echo "Executing mapbox-tile-copy"
+../node_modules/@mapbox/mapbox-tile-copy/bin/mapbox-tile-copy.js --minzoom=1 --maxzoom=9 hotprojects.raw.geojson s3://tm-projects-vt/tiles/{z}/{x}/{y}.pbf
 rm hotprojects.raw.geojson
 
 ./hotprojects.js > hotprojects.geojson
