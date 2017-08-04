@@ -105,7 +105,8 @@ function processMeta(tile, writeData, done) {
             tile = tile.osm;
             tile.features.forEach(function(feature) {
                 var binArea = turf.area(feature);
-                if (binArea < refArea/3) return; // ignore degenerate slices
+                // with this exclude, highways doesn't generate levels 11, 10, etc.
+                // if (binArea < refArea/3) return; // ignore degenerate slices
 
                 var binX = feature.properties.binX + (index % 2)*binningFactor,
                     binY = feature.properties.binY + Math.floor(index / 2)*binningFactor;
