@@ -30,6 +30,8 @@ See `app/run.sh` for an example invocation of all the data generation scripts.
 
 The `./docker.sh gen` command will run the above `app/run.sh` command in a docker environment.
 
+Note: there is curently a [known issue](https://github.com/GFDRR/osm-analytics-cruncher/issues/14) with hot project data generation (geojson + tileset) in docker environment.  
+
 ## Data generation - Command breakdown
 
 There are multiple commands that generate different parts of the data:
