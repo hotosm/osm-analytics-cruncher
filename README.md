@@ -60,6 +60,26 @@ The `app/server/serve.js` script is an example for how to provide the data to th
 
 You can use the `./docker server buildings.mbtile` command to serve a pre-computed `mbtile` file. The `mbtile` file must be available in the `./results` local folder.
 
+
+## Running the cruncher using a cron task
+
+The cruncher alternates between periods of heavy processing and no load at all after that. Due to this, it is worth considering an execution environment
+that does not rely on an always-on server, but rather on a job-based approach. This can be achieved using Google Cloud and the following command:
+
+`gcloud compute --project "osma-174310" instances create "osma-cruncher" --zone "us-central1-c" --machine-type "custom-16-30720" --subnet "default" --maintenance-policy "MIGRATE" --service-account <your google data> --scopes "https://www.googleapis.com/auth/cloud-platform" --image "osma-cruncher-v2" --image-project "osma-174310" --boot-disk-size "100" --boot-disk-type "pd-ssd" --boot-disk-device-name "osma-cruncher"`
+
+Its worth noting that this is not a requirement of the cruncher, nor a dependency on Google Cloud. A similar approach can be achieved
+with different hosting services with no code changes, and the cruncher can be set up periodically on a "traditional", always-on server.
+
+## Hardware profile
+
+The crunching process is a resource-intensive task, requiring significant CPU, memory and storage to execute. 
+To the date of these tests, the cruncher required 16 processing cores, 30GB of RAM and 100GB of storage to process the data in around 6h.
+
+The necessary storage space depends on the amount of data input and output, so it may need to vary if the OSM tiles grow in size, or if more features need to be processed.
+
+CPU and RAM are linearly correlated, and mostly dictate the time it takes to process the whole data.
+
 # Walkthrough
 
 An overview of all steps required to implement an instance of osm-analytics can be found [here](https://gist.github.com/tyrasd/5f17d10a5b9ab1c8d2409238a5e0a54b) (work in progress)
