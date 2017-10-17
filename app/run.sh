@@ -49,7 +49,7 @@ mv $RESULTS_DIR/buildings.mbtiles.tmp $RESULTS_DIR/buildings.mbtiles
 #-forever restart $SERVER_SCRIPT
 rm buildings.mbtiles
 # highways
-./crunch.sh planet.mbtiles highways 32
+./crunch.sh planet.mbtiles highways 64
 cp highways.mbtiles $RESULTS_DIR/highways.mbtiles.tmp
 rm $RESULTS_DIR/highways.mbtiles -f
 mv $RESULTS_DIR/highways.mbtiles.tmp $RESULTS_DIR/highways.mbtiles
