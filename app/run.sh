@@ -34,7 +34,7 @@ function cleanup {
 ./hotprojects.sh || true
 
 # download latest planet from osm-qa-tiles
-curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
+curl https://s3.amazonaws.com/mapbox/osm-qa-tiles-production/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
 
 # generate user experience data
 ./experiences.sh planet.mbtiles
