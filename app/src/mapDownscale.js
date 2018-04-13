@@ -1,19 +1,26 @@
-#!/usr/bin/env node
+
 'use strict';
 
-var mbtiles = require('tile-reduce/src/mbtiles.js'); // todo: hacky?
-var MBTiles = require('mbtiles');
+var mbtiles = require('@mapbox/tile-reduce/src/mbtiles.js'); // todo: hacky?
+var mbtilesPromises = require('./mbtiles-promises');
 var queue = require('queue-async');
 var binarysplit = require('binary-split');
 var turf = require('turf');
 var sphericalmercator = new (require('sphericalmercator'))({size: 512});
 var lodash = require('lodash');
 var stats = require('simple-statistics');
+var geojsonVt = require('geojson-vt');
+var vtpbf = require('vt-pbf');
+var zlib = require('zlib');
+var MBTiles = require('mbtiles');
+
+const intermediateDir = './intermediate/';
 
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 var mbtilesPath = global.mapOptions.mbtilesPath;
 
-var initQueue = queue(1);
+var initQueue = queue();
+var outMbtiles;
 
 initQueue.defer(mbtiles, {
     name: 'osm',
@@ -21,10 +28,10 @@ initQueue.defer(mbtiles, {
     raw: false
 });
 initQueue.defer(function(cb) {
-    var db = new MBTiles(mbtilesPath, function(err) {
-        if (err) cb(err);
+    mbtilesPromises.openRead(mbtilesPath)
+    .then(function(dbHandle) {
         var tilesArray = [];
-        var tileStream = db.createZXYStream()
+        var tileStream = dbHandle.createZXYStream()
             .pipe(binarysplit('\n'))
             .on('data', function(line) {
                 var tile = line.toString().split('/');
@@ -33,8 +40,15 @@ initQueue.defer(function(cb) {
             .on('end', function() {
                 cb(null, tilesArray);
             });
-    });
+    }).catch(cb);
 });
+initQueue.defer(function(cb) {
+    mbtilesPromises.openWrite(intermediateDir + 'out.tmp.'+process.pid+'.mbtiles')
+    .then(function(dbHandle) {
+        outMbtiles = dbHandle;
+        cb();
+    }).catch(cb);
+})
 
 var todoList = {},
     getVT,
@@ -91,7 +105,8 @@ function processMeta(tile, writeData, done) {
             tile = tile.osm;
             tile.features.forEach(function(feature) {
                 var binArea = turf.area(feature);
-                if (binArea < refArea/3) return; // ignore degenerate slices
+                // with this exclude, highways doesn't generate levels 11, 10, etc.
+                // if (binArea < refArea/3) return; // ignore degenerate slices
 
                 var binX = feature.properties.binX + (index % 2)*binningFactor,
                     binY = feature.properties.binY + Math.floor(index / 2)*binningFactor;
@@ -172,8 +187,33 @@ function processMeta(tile, writeData, done) {
         output.features = output.features.filter(function(feature) {
             return feature.properties._count > 0;
         });
-        // write to stdout
-        writeData(JSON.stringify(output)+'\n');
-        done();
+
+        // write to mbtiles output file
+        var tileData = geojsonVt(output, {
+            maxZoom: 11,
+            buffer: 0,
+            tolerance: 1, // todo: faster if >0? (default is 3)
+            indexMaxZoom: 11
+        }).getTile(tile[2], tile[0], tile[1]);
+        if (tileData === null || tileData.features.length === 0) {
+            done();
+        } else {
+            var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
+            // write to mbtiles file
+            outMbtiles.putTile(tile[2], tile[0], tile[1], pbfout, done);
+        }
     });
 }
+
+
+
+process.on('SIGHUP', function() {
+    if (!outMbtiles) return process.exit(12);
+    mbtilesPromises.closeWrite(outMbtiles)
+    .then(function() {
+        process.exit(0);
+    }).catch(function(err) {
+        console.error("error while closing db", err);
+        process.exit(13);
+    });
+});

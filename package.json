@@ -22,17 +22,21 @@
   },
   "homepage": "https://github.com/hotosm/osm-analytics-cruncher",
   "dependencies": {
-    "binary-split": "^1.0.0",
+    "binary-split": "^1.0.1",
+    "geojson-vt": "^2.4.0",
     "lineclip": "^1.1.5",
     "lodash": "^4.10.0",
-    "mapbox-tile-copy": "^4.4.0",
     "mbtiles": "^0.8.2",
     "queue-async": "^1.2.1",
     "rbush": "^1.4.2",
-    "simple-statistics": "git+https://github.com/simple-statistics/simple-statistics.git#64063607859eec4ede0bced6afb4cef0516d251b",
+    "simple-statistics": "^2.4.0",
     "sphericalmercator": "^1.0.4",
     "superagent": "^1.8.3",
-    "tile-reduce": "^3.1.1",
-    "turf": "^2.0.2"
+    "@mapbox/tile-reduce": "git+https://github.com/mapbox/tile-reduce.git#master",
+    "turf": "^2.0.2",
+    "vt-pbf": "^2.1.2",
+    "express": "^4.13.4",
+    "tilelive": "^5.12.1",
+    "@mapbox/mapbox-tile-copy": "6.2.1"
   }
 }
