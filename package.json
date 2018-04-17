@@ -36,7 +36,6 @@
     "turf": "^2.0.2",
     "vt-pbf": "^2.1.2",
     "express": "^4.13.4",
-    "tilelive": "^5.12.1",
-    "@mapbox/mapbox-tile-copy": "6.2.1"
+    "tilelive": "^5.12.1"
   }
 }

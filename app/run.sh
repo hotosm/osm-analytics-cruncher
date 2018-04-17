@@ -29,10 +29,6 @@ function cleanup {
 # cd osm-analytics-cruncher
 # npm install --silent
 
-# update hot projects data
-# TODO: Run in the new cruncher
-./hotprojects.sh || true
-
 # download latest planet from osm-qa-tiles
 curl https://s3.amazonaws.com/mapbox/osm-qa-tiles-production/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
 

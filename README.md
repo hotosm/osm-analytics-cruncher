@@ -30,8 +30,6 @@ See `app/run.sh` for an example invocation of all the data generation scripts.
 
 The `./docker.sh gen` command will run the above `app/run.sh` command in a docker environment.
 
-Note: there is curently a [known issue](https://github.com/GFDRR/osm-analytics-cruncher/issues/14) with hot project data generation (geojson + tileset) in docker environment.  
-
 ## Data generation - Command breakdown
 
 There are multiple commands that generate different parts of the data:
@@ -46,9 +44,6 @@ Creates vector tiles for a specific feature type (e.g. buildings). Requires an e
 
 Output is `<job>.mbtiles`.
 
-### `app/hotprojects.sh`
-
-Fetches the list of HOT projects outlines from the [tasking manager API](https://github.com/hotosm/osm-tasking-manager2/wiki/API). Generates vector tiles of the raw geometries and a geojson of simplified outlines (convex hulls limited to 40 vertices). Publishes the results on Amazon S3.
 
 ## Serving data
 
@@ -71,6 +66,7 @@ that does not rely on an always-on server, but rather on a job-based approach. T
 Its worth noting that this is not a requirement of the cruncher, nor a dependency on Google Cloud. A similar approach can be achieved
 with different hosting services with no code changes, and the cruncher can be set up periodically on a "traditional", always-on server.
 
+
 ## Hardware profile
 
 The crunching process is a resource-intensive task, requiring significant CPU, memory and storage to execute. 
@@ -80,6 +76,8 @@ The necessary storage space depends on the amount of data input and output, so i
 
 CPU and RAM are linearly correlated, and mostly dictate the time it takes to process the whole data.
 
-# Walkthrough
+# Documentation
 
-An overview of all steps required to implement an instance of osm-analytics can be found [here](https://gist.github.com/tyrasd/5f17d10a5b9ab1c8d2409238a5e0a54b) (work in progress)
+An overview of all steps required to implement an instance of osm-analytics can be found [here](https://gist.github.com/tyrasd/5f17d10a5b9ab1c8d2409238a5e0a54b) (work in progress).
+
+A schematic diagram of the different components of the cruncher are found in the [documentation directory](https://github.com/hotosm/osm-analytics-cruncher/tree/master/documentation).
