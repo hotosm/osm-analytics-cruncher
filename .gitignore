@@ -1,4 +1,7 @@
 intermediate/
 *.mbtiles
+!app/empty.mbtiles
 hotprojects.geojson
 experiences.json
+node_modules
+npm-debug.log

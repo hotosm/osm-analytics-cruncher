@@ -1,7 +1,7 @@
-#!/usr/bin/env node
+
 'use strict';
 
-var mbtiles = require('tile-reduce/src/mbtiles.js'); // todo: hacky?
+var mbtiles = require('@mapbox/tile-reduce/src/mbtiles.js'); // todo: hacky?
 var mbtilesPromises = require('./mbtiles-promises');
 var queue = require('queue-async');
 var binarysplit = require('binary-split');
@@ -105,7 +105,8 @@ function processMeta(tile, writeData, done) {
             tile = tile.osm;
             tile.features.forEach(function(feature) {
                 var binArea = turf.area(feature);
-                if (binArea < refArea/3) return; // ignore degenerate slices
+                // with this exclude, highways doesn't generate levels 11, 10, etc.
+                // if (binArea < refArea/3) return; // ignore degenerate slices
 
                 var binX = feature.properties.binX + (index % 2)*binningFactor,
                     binY = feature.properties.binY + Math.floor(index / 2)*binningFactor;

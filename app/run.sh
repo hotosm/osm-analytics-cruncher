@@ -13,9 +13,9 @@
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # config
-WORKING_DIR=/mnt/data
-RESULTS_DIR=~/results
-SERVER_SCRIPT=/home/ubuntu/server/serve.js
+WORKING_DIR=./data
+RESULTS_DIR=./results
+SERVER_SCRIPT=./server/serve.js
 
 # clean up
 trap cleanup EXIT
@@ -24,16 +24,17 @@ function cleanup {
 }
 
 # init repo
-cd $WORKING_DIR
-git clone https://github.com/hotosm/osm-analytics-cruncher
-cd osm-analytics-cruncher
-npm install --silent
+# cd $WORKING_DIR
+# git clone https://github.com/hotosm/osm-analytics-cruncher
+# cd osm-analytics-cruncher
+# npm install --silent
 
 # update hot projects data
+# TODO: Run in the new cruncher
 ./hotprojects.sh || true
 
 # download latest planet from osm-qa-tiles
-curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
+curl https://s3.amazonaws.com/mapbox/osm-qa-tiles-production/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
 
 # generate user experience data
 ./experiences.sh planet.mbtiles
@@ -44,21 +45,24 @@ curl https://s3.amazonaws.com/mapbox/osm-qa-tiles/latest.planet.mbtiles.gz --sil
 cp buildings.mbtiles $RESULTS_DIR/buildings.mbtiles.tmp
 rm $RESULTS_DIR/buildings.mbtiles -f
 mv $RESULTS_DIR/buildings.mbtiles.tmp $RESULTS_DIR/buildings.mbtiles
-forever restart $SERVER_SCRIPT
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm buildings.mbtiles
 # highways
-./crunch.sh planet.mbtiles highways 32
+./crunch.sh planet.mbtiles highways 64
 cp highways.mbtiles $RESULTS_DIR/highways.mbtiles.tmp
 rm $RESULTS_DIR/highways.mbtiles -f
 mv $RESULTS_DIR/highways.mbtiles.tmp $RESULTS_DIR/highways.mbtiles
-forever restart $SERVER_SCRIPT
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm highways.mbtiles
 # waterways
 ./crunch.sh planet.mbtiles waterways 32
 cp waterways.mbtiles $RESULTS_DIR/waterways.mbtiles.tmp
 rm $RESULTS_DIR/waterways.mbtiles -f
 mv $RESULTS_DIR/waterways.mbtiles.tmp $RESULTS_DIR/waterways.mbtiles
-forever restart $SERVER_SCRIPT
+# TODO: add condition
+#-forever restart $SERVER_SCRIPT
 rm waterways.mbtiles
 
 rm planet.mbtiles

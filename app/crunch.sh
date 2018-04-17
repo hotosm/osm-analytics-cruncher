@@ -13,7 +13,7 @@ mkdir -p intermediate
 
 # apply filter, merge with user experience data, aggregate to bins
 # and create z13-z14 tiles for raw data
-./src/index.js $1 $2.json
+node ./src/index.js $1 $2.json
 cp empty.mbtiles intermediate/out.mbtiles
 ./merge-mbtile.sh intermediate/out.mbtiles intermediate/$2.geom.*.mbtiles
 cp empty.mbtiles intermediate/out.12.mbtiles
@@ -21,7 +21,7 @@ cp empty.mbtiles intermediate/out.12.mbtiles
 
 # downscale bins to zoom levels 11 to 0
 for i in {11..0}; do
-    ./src/downscale.js intermediate/out.$((i+1)).mbtiles $BINNINGFACTOR
+    node ./src/downscale.js intermediate/out.$((i+1)).mbtiles $BINNINGFACTOR
     cp empty.mbtiles intermediate/out.$i.mbtiles
     ./merge-mbtile.sh intermediate/out.$i.mbtiles intermediate/out.tmp.*.mbtiles
 done
