@@ -1,20 +1,23 @@
 #!/usr/bin/env node
 'use strict';
-var tileReduce = require('tile-reduce');
+var tileReduce = require('@mapbox/tile-reduce');
 var path = require('path');
 
 var mbtilesPath = process.argv[2] || "osm.mbtiles";
-var binningFactor = +process.argv[3] || 100;
+var binningFactor = +process.argv[3] || 64;
+
+var cpus = require('os').cpus().length;
 
 tileReduce({
-    map: path.join(__dirname, '/map.js'),
+    map: path.join(__dirname, '/mapDownscale.js'),
     log: false,
     sources: [{
-        name: 'osm',
+        name: 'osmqatiles',
         mbtiles: mbtilesPath,
-        raw: false
+        raw: true
     }],
     mapOptions: {
+        mbtilesPath: mbtilesPath,
         binningFactor: binningFactor
     }
 })

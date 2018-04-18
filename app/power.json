@@ -1,0 +1,29 @@
+{
+    "id": "power",
+    "geometry": ["Polygon", "Point"],
+    "tag": [{
+        "key": "power", "value": "sub_station"
+    },{
+        "key": "power", "value": "substation"
+    },{
+        "key": "power", "value": "transformer"
+    },{
+        "key": "power", "value": "generator"
+    },{
+        "key": "power", "value": "plant"
+    },{
+        "key": "power", "value": "station"
+    },{
+        "key": "power", "value": "converter"
+    },{
+        "key": "power", "value": "cable_distribution_cabinet"
+    },{
+        "key": "power", "value": "switch"
+    },{
+        "key": "power", "value": "heliostat"
+    }],
+    "experience": {
+        "file": "./experiences.json",
+        "field": "objects"
+    }
+}

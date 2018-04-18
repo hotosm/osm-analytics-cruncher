@@ -1,4 +1,5 @@
 {
+    "id": "buildings",
     "geometry": "Polygon",
     "tag": "building",
     "experience": {
