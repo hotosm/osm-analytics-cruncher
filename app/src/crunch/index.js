@@ -7,21 +7,19 @@ var tileReduce = require('@mapbox/tile-reduce');
 var mbtilesPath = process.argv[2] || "osm.mbtiles",
     analyticsPath = process.argv[3] || '../../analytics.json',
     experiencesPath = process.argv[4] || '../../experiences.json',
-    intermediateDir = process.argv[5] || './intermediate',
+    outputDir = process.argv[5] || './output',
     binningFactor = +process.argv[6] || 64;
-
 
 var analytics = JSON.parse(fs.readFileSync(analyticsPath));
 
 try {
-    fs.mkdirSync(intermediateDir);
+    analytics.layers.forEach(function(layer) {
+        fs.mkdirSync(outputDir + '/' + layer.name);
+    })
 } catch (error) {
-    console.error("error: intermediate directory should not exist when calling the cruncher (it will be created automatically)");
+    console.error("error: output directory should exist and be empty when calling the cruncher (it will be created automatically)");
     process.exit(1);
 }
-analytics.layers.forEach(function(layer) {
-    fs.mkdirSync(intermediateDir + '/' + layer.name);
-})
 
 tileReduce({
     map: path.join(__dirname, '/map.js'),
@@ -34,7 +32,7 @@ tileReduce({
     mapOptions: {
         analyticsPath: analyticsPath,
         experiencesPath: experiencesPath,
-        intermediateDir: intermediateDir,
+        outputDir: outputDir,
         binningFactor: binningFactor
     }
 })

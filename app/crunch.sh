@@ -1,31 +1,44 @@
 #!/bin/bash -ex
 
-BINNINGFACTOR=${3:-64}
+INPUTFILE=$1
+ANALYTICSFILE=$2
+OUTPUTDIR=${3:-output}
+BINNINGFACTOR=${4:-64}
 
 # clean up procedure
-trap cleanup EXIT
+trap cleanup ERR
 function cleanup {
-  rm -rf ./intermediate
+  rm -rf $OUTPUTDIR
 }
 
-# make temporary directory for intermediate results
-mkdir -p intermediate
+mkdir -p $OUTPUTDIR/data/
+
+# calculate user experience stats
+node ./src/experience/index.js $INPUTFILE $ANALYTICSFILE > $OUTPUTDIR/experiences.json
 
 # apply filter, merge with user experience data, aggregate to bins
-# and create z13-z14 tiles for raw data
-node ./src/index.js $1 $2.json $BINNINGFACTOR
-cp empty.mbtiles intermediate/out.mbtiles
-./merge-mbtile.sh intermediate/out.mbtiles intermediate/$2.geom.*.mbtiles
-cp empty.mbtiles intermediate/out.12.mbtiles
-./merge-mbtile.sh intermediate/out.12.mbtiles intermediate/$2.aggr.*.mbtiles
+# and create z13 tiles for raw data
+node ./src/crunch/index.js $INPUTFILE $ANALYTICSFILE $OUTPUTDIR/experiences.json $OUTPUTDIR/data/ $BINNINGFACTOR
 
-# downscale bins to zoom levels 11 to 0
-for i in {11..0}; do
-    node ./src/downscale.js intermediate/out.$((i+1)).mbtiles $BINNINGFACTOR
-    cp empty.mbtiles intermediate/out.$i.mbtiles
-    ./merge-mbtile.sh intermediate/out.$i.mbtiles intermediate/out.tmp.*.mbtiles
+for d in $OUTPUTDIR/data/*; do
+  layer=$(basename $d)
+  cp empty.mbtiles $OUTPUTDIR/data/$layer/out.z13.mbtiles
+  ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.z13.mbtiles $OUTPUTDIR/data/$layer/geom.*.z13.mbtiles
+  cp empty.mbtiles $OUTPUTDIR/data/$layer/out.z12.mbtiles
+  ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.12.mbtiles $OUTPUTDIR/data/$layer/aggr.*.z12.mbtiles
+
+  # downscale bins to zoom levels 11 to 0
+  for i in {11..0}; do
+    node ./src/downscale/index.js $OUTPUTDIR/data/$layer/out.z$((i+1)).mbtiles $OUTPUTDIR/data/$layer $BINNINGFACTOR
+    cp empty.mbtiles $OUTPUTDIR/data/$layer/out.z$i.mbtiles
+    ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.z$i.mbtiles $OUTPUTDIR/data/$layer/downscaled.*.mbtiles
+  done
+
+  # merge in aggredate data zoom levels
+  mv $OUTPUTDIR/data/$layer/out.z13.mbtiles $OUTPUTDIR/data/$layer/out.mbtiles
+  ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.mbtiles $OUTPUTDIR/data/$layer/out.z*.mbtiles
+  mv $OUTPUTDIR/data/$layer/out.mbtiles $OUTPUTDIR/$layer.mbtiles
+  rmdir $OUTPUTDIR/data/$layer
 done
-
-# merge in aggredate data zoom levels
-./merge-mbtile.sh intermediate/out.mbtiles intermediate/out.*.mbtiles
-mv intermediate/out.mbtiles $2.mbtiles
+rmdir $OUTPUTDIR/data
+rm $OUTPUTDIR/experiences.json

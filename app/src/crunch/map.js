@@ -14,8 +14,7 @@ var lodash = require('lodash');
 var stats = require('simple-statistics');
 var applyFilter = require('../applyFilter.js');
 
-var intermediateDir = global.mapOptions.intermediateDir + '/';
-
+var outputDir = global.mapOptions.outputDir + '/';
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 
 var analytics = JSON.parse(fs.readFileSync(global.mapOptions.analyticsPath));
@@ -37,8 +36,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
         var handles = [];
         analytics.layers.forEach(function(layer) {
-            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '/geom.' + process.pid + '.z13.mbtiles'));
-            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '/aggr.' + process.pid + '.z12.mbtiles'));
+            handles.push(mbtilesPromises.openWrite(outputDir + layer.name + '/geom.' + process.pid + '.z13.mbtiles'));
+            handles.push(mbtilesPromises.openWrite(outputDir + layer.name + '/aggr.' + process.pid + '.z12.mbtiles'));
         })
         Promise.all(handles).then(function(dbHandles) {
             analytics.layers.forEach(function(layer, index) {
