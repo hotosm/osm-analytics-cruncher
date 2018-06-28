@@ -4,7 +4,7 @@ var fs = require('fs');
 var geojsonVt = require('geojson-vt');
 var vtpbf = require('vt-pbf');
 var zlib = require('zlib');
-var mbtilesPromises = require('./mbtiles-promises');
+var mbtilesPromises = require('../mbtiles-promises');
 var queue = require('queue-async');
 var turf = require('turf');
 var lineclip = require('lineclip');
@@ -12,101 +12,97 @@ var sphericalmercator = new (require('sphericalmercator'))({size: 512});
 var rbush = require('rbush');
 var lodash = require('lodash');
 var stats = require('simple-statistics');
+var applyFilter = require('../applyFilter.js');
 
-const intermediateDir = './intermediate/';
+var intermediateDir = global.mapOptions.intermediateDir + '/';
 
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 
-var filter = JSON.parse(fs.readFileSync(global.mapOptions.filterPath));
+var analytics = JSON.parse(fs.readFileSync(global.mapOptions.analyticsPath));
+analytics.layers.forEach(function(layer) {
+    layer.filter = applyFilter(layer.filter);
+});
 
-var geomTiles, aggrTiles;
+var geomTiles = [];
+var aggrTiles = [];
 var initialized = false;
 
 var users = {};
-if (filter.experience.file)
-    users = JSON.parse(fs.readFileSync(filter.experience.file));
+if (global.mapOptions.experiencesPath)
+    users = JSON.parse(fs.readFileSync(global.mapOptions.experiencesPath));
 
 
 // Filter features touched by list of users defined by users.json
 module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
-        Promise.all([
-            mbtilesPromises.openWrite(intermediateDir + (filter.id || filter.experience.field)+'.geom.'+process.pid+'.mbtiles'),
-            mbtilesPromises.openWrite(intermediateDir + (filter.id || filter.experience.field)+'.aggr.'+process.pid+'.mbtiles')
-        ]).then(function(dbHandles) {
-            geomTiles = dbHandles[0];
-            aggrTiles = dbHandles[1];
+        var handles = [];
+        analytics.layers.forEach(function(layer) {
+            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '.geom.' + process.pid + '.mbtiles'));
+            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '.aggr.' + process.pid + '.mbtiles'));
+        })
+        Promise.all(handles).then(function(dbHandles) {
+            analytics.layers.forEach(function(layer, index) {
+                geomTiles[index] = dbHandles[index * 2];
+                aggrTiles[index] = dbHandles[index * 2 + 1];
+            });
             initialized = true;
             _(tileLayers, tile, writeData, done); // restart process after initialization
         }).catch(function(err) {
-            console.error("error while opening db", err);
+            console.error("error while opening mbtiles db", err);
         });
         return;
     }
 
-    var layer = tileLayers.osmqatiles.osm;
+    var filteredData = analytics.layers.map(function() { return []; });
 
-    // filter
-    function hasGeometry(feature, geometry) {
-        return typeof geometry == "string"
-            ? geometry === feature.geometry.type
-	    : geometry.includes(feature.geometry.type);
-    }
-    function hasTag(feature, tag) {
-        return typeof tag == "string"
-	    ? feature.properties[tag] && feature.properties[tag] !== 'no'
-	    : tag.some(tag => feature.properties[tag.key] === tag.value);
-    }
-    layer.features = layer.features.filter(function(feature) {
-        return hasGeometry(feature, filter.geometry) && hasTag(feature, filter.tag);
+    tileLayers.osmqatiles.osm.features.forEach(function(feature) {
+        analytics.layers.forEach(function(layer, layerIndex) {
+            if (layer.filter(feature)) {
+                filteredData[layerIndex].push(feature);
+            }
+        });
     });
 
-    // enhance with user experience data
-    layer.features.forEach(function(feature) {
-        var props = feature.properties;
-        var user = props['@uid'];
-        feature.properties = {
-            _uid : user,
-            _timestamp: props['@timestamp']
-        };
-        if (typeof filter.tag == "string") {
-          feature.properties[filter.tag] = props[filter.tag];
-        } else {
-          filter.tag.forEach(tag => {
-            if (props[tag.key])
-              feature.properties[tag.key] = props[tag.key];
-          });
-        }
-        if (users[user] && users[user][filter.experience.field])
-            feature.properties._userExperience = users[user][filter.experience.field]; // todo: include all/generic experience data?
-    });
-
-    if (layer.features.length === 0)
+    if (filteredData.map(function(features) { return features.length; }).reduce(function(a,b) { return a+b; }) === 0)
         return done();
 
-    var tilesIndex = geojsonVt(layer, {
-        maxZoom: 13,
-        buffer: 0,
-        tolerance: 1, // todo: faster if >0? (default is 3)
-        indexMaxZoom: 13
+    // enhance with user experience data
+    filteredData = filteredData.map(function(features, layerIndex) {
+        return features.map(function(feature) {
+            var output = Object.assign({}, feature);
+            var user = feature.properties['@uid'];
+            output.properties = {
+              _uid: user,
+              _timestamp: feature.properties['@timestamp']
+            }
+            output.properties._userExperience = users[user][analytics.layers[layerIndex].experienceField];
+            return output;
+        });
     });
-    function putTile(z,x,y, done) {
-        var tileData = tilesIndex.getTile(z, x, y);
-        if (tileData === null || tileData.features.length === 0) {
-            done();
-        } else {
-            var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
-            geomTiles.putTile(z, x, y, pbfout, done);
-        }
-    }
-    var putTileQueue = queue(1);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2+1);
-    putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2);
+
     var resultQueue = queue();
-    resultQueue.defer(putTileQueue.awaitAll);
-    resultQueue.defer(function(done) {
+    filteredData.forEach(function(features, layerIndex) {
+        var tilesIndex = geojsonVt(turf.featurecollection(features), {
+            maxZoom: 13,
+            buffer: 0,
+            tolerance: 1, // todo: faster if >0? (default is 3)
+            indexMaxZoom: 13
+        });
+        function putTile(z,x,y, done) {
+            var tileData = tilesIndex.getTile(z, x, y);
+            if (tileData === null || tileData.features.length === 0) {
+                done();
+            } else {
+                var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
+                geomTiles[layerIndex].putTile(z, x, y, pbfout, done);
+            }
+        }
+        var putTileQueue = queue(1);
+        putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2);
+        putTileQueue.defer(putTile, tile[2]+1, tile[0]*2,   tile[1]*2+1);
+        putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2+1);
+        putTileQueue.defer(putTile, tile[2]+1, tile[0]*2+1, tile[1]*2);
+        resultQueue.defer(putTileQueue.awaitAll);
         var tileBbox = sphericalmercator.bbox(tile[0],tile[1],tile[2]);
 
         var bins = [],
@@ -140,7 +136,7 @@ module.exports = function _(tileLayers, tile, writeData, done) {
         var binTree = rbush();
         binTree.load(bins);
 
-        layer.features.forEach(function(feature) {
+        features.forEach(function(feature) {
             var clipper,
                 geometry = feature.geometry.coordinates;
             if (feature.geometry.type === 'Point') {
@@ -208,11 +204,11 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             tolerance: 1, // todo: faster if >0? (default is 3)
             indexMaxZoom: 12
         }).getTile(tile[2], tile[0], tile[1]);
-        if (tileData === null || tileData.features.length === 0) {
-            done();
-        } else {
+        if (tileData !== null && tileData.features.length > 0) {
             var pbfout = zlib.gzipSync(vtpbf.fromGeojsonVt({ 'osm': tileData }));
-            aggrTiles.putTile(tile[2], tile[0], tile[1], pbfout, done);
+            resultQueue.defer(function(done) {
+                aggrTiles[layerIndex].putTile(tile[2], tile[0], tile[1], pbfout, done);
+            });
         }
     });
     resultQueue.await(function(err) {
@@ -224,10 +220,13 @@ module.exports = function _(tileLayers, tile, writeData, done) {
 
 
 process.on('SIGHUP', function() {
-    Promise.all([
-        mbtilesPromises.closeWrite(geomTiles),
-        mbtilesPromises.closeWrite(aggrTiles)
-    ]).then(function() {
+    Promise.all([]
+        .concat(
+            geomTiles.map(function(geomTiles) { return mbtilesPromises.closeWrite(geomTiles); })
+        ).concat(
+            aggrTiles.map(function(aggrTiles) { return mbtilesPromises.closeWrite(aggrTiles); })
+        )
+    ).then(function() {
         process.exit(0);
     }).catch(function(err) {
         console.error("error while closing db", err);

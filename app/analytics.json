@@ -1,0 +1,58 @@
+{
+  "experienceFields": [
+    {
+      "name": "objects",
+      "metric": "count"
+    },
+    {
+      "name": "buildings",
+      "filter": {
+        "tagKey": "building",
+        "geometryType": "Polygon"
+      },
+      "metric": "count"
+    },
+    {
+      "name": "highways",
+      "filter": {
+        "tagKey": "highway",
+        "geometryType": "LineString"
+      },
+      "metric": "length"
+    },
+    {
+      "name": "waterways",
+      "filter": {
+        "tagKey": "waterway",
+        "geometryType": "LineString"
+      },
+      "metric": "length"
+    }
+  ],
+  "layers": [
+    {
+      "name": "buildings",
+      "experienceField": "buildings",
+      "filter": {
+        "tagKey": "building",
+        "geometry": "Polygon"
+      }
+    },
+    {
+      "name": "highways",
+      "experienceField": "highways",
+      "filter": {
+        "tagKey": "highway",
+        "geometry": "LineString"
+      }
+    },
+    {
+      "name": "waterways",
+      "experienceField": "waterways",
+      "filter": {
+        "tagKey": "waterway",
+        "geometry": "LineString"
+      }
+    }
+  ]
+}

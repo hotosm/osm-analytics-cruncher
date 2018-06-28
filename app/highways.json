@@ -1,9 +1,0 @@
-{
-    "id": "highways",
-    "geometry": "LineString",
-    "tag": "highway",
-    "experience": {
-        "file": "./experiences.json",
-        "field": "highways"
-    }
-}

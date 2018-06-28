@@ -4,8 +4,10 @@ var tileReduce = require('@mapbox/tile-reduce');
 var path = require('path');
 
 var mbtilesPath = process.argv[2] || "osm.mbtiles",
-    filterPath = process.argv[3] || './filter.json',
-    binningFactor = +process.argv[4] || 64;
+    analyticsPath = process.argv[3] || '../../analytics.json',
+    experiencesPath = process.argv[4] || '../../experiences.json',
+    intermediateDir = process.argv[5] || './intermediate',
+    binningFactor = +process.argv[6] || 64;
 
 tileReduce({
     map: path.join(__dirname, '/map.js'),
@@ -16,7 +18,9 @@ tileReduce({
         raw: false
     }],
     mapOptions: {
-        filterPath: filterPath,
+        analyticsPath: analyticsPath,
+        experiencesPath: experiencesPath,
+        intermediateDir: intermediateDir,
         binningFactor: binningFactor
     }
 })

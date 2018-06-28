@@ -1,9 +1,0 @@
-{
-    "id": "buildings",
-    "geometry": "Polygon",
-    "tag": "building",
-    "experience": {
-        "file": "./experiences.json",
-        "field": "buildings"
-    }
-}
