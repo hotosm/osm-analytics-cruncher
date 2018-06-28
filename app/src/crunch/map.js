@@ -37,8 +37,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
     if (!initialized) {
         var handles = [];
         analytics.layers.forEach(function(layer) {
-            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '.geom.' + process.pid + '.mbtiles'));
-            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '.aggr.' + process.pid + '.mbtiles'));
+            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '/geom.' + process.pid + '.z13.mbtiles'));
+            handles.push(mbtilesPromises.openWrite(intermediateDir + layer.name + '/aggr.' + process.pid + '.z12.mbtiles'));
         })
         Promise.all(handles).then(function(dbHandles) {
             analytics.layers.forEach(function(layer, index) {
