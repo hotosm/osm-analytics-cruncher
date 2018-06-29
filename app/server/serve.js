@@ -58,6 +58,9 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
     });
 
     app.set('port', 7778);
+    app.get('/analytics.json', function(req, res) {
+      res.json(analytics);
+    });
     http.createServer(app).listen(app.get('port'), function() {
         console.log('Express server listening on port ' + app.get('port'));
     });
