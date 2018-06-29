@@ -25,7 +25,7 @@ for d in $OUTPUTDIR/data/*; do
   cp empty.mbtiles $OUTPUTDIR/data/$layer/out.z13.mbtiles
   ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.z13.mbtiles $OUTPUTDIR/data/$layer/geom.*.z13.mbtiles
   cp empty.mbtiles $OUTPUTDIR/data/$layer/out.z12.mbtiles
-  ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.12.mbtiles $OUTPUTDIR/data/$layer/aggr.*.z12.mbtiles
+  ./merge-mbtile.sh $OUTPUTDIR/data/$layer/out.z12.mbtiles $OUTPUTDIR/data/$layer/aggr.*.z12.mbtiles
 
   # downscale bins to zoom levels 11 to 0
   for i in {11..0}; do
