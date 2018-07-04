@@ -32,26 +32,91 @@
   "layers": [
     {
       "name": "buildings",
+      "title": "Buildings",
+      "description": "Polygons with a building=* tag",
       "experienceField": "buildings",
       "filter": {
         "tagKey": "building",
         "geometry": "Polygon"
+      },
+      "render": {
+        "type": "fill",
+        "scaleBasis": 4,
+        "scaleFactor": 51200,
+        "defaultStyle": {
+          "raw": {
+            "fill-color": "#FDB863",
+            "fill-outline-color": "#E08214"
+          },
+          "raw-highlight": {
+            "fill-color": "#5CBAD8",
+            "fill-outline-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#FDB863"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
       }
     },
     {
       "name": "highways",
+      "title": "Roads",
+      "description": "Lines with a highway=* tag (highways & roads, but also tracks and paths)",
       "experienceField": "highways",
       "filter": {
         "tagKey": "highway",
         "geometry": "LineString"
+      },
+      "render": {
+        "type": "line",
+        "scaleBasis": 8,
+        "scaleFactor": 80000,
+        "defaultStyle": {
+          "raw": {
+            "line-color": "#9e9ac8"
+          },
+          "raw-highlight": {
+            "line-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#9e9ac8"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
       }
     },
     {
       "name": "waterways",
+      "title": "Rivers",
+      "description": "Lines with a waterway=* tag (waterways, rivers & streams)",
       "experienceField": "waterways",
       "filter": {
         "tagKey": "waterway",
         "geometry": "LineString"
+      },
+      "render": {
+        "type": "line",
+        "scaleBasis": 8,
+        "scaleFactor": 80000,
+        "defaultStyle": {
+          "raw": {
+            "line-color": "#c89ab7"
+          },
+          "raw-highlight": {
+            "line-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#c89ab7"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
       }
     }
   ]
