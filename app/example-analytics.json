@@ -118,6 +118,38 @@
           }
         }
       }
+    },
+    {
+      "name": "amenities",
+      "title": "Amenities",
+      "description": "Objects with an amenity=* tag",
+      "experienceField": "objects",
+      "filter": {
+        "tagKey": "amenity",
+        "geometry": ["LineString", "Polygon", "Point", "MultiPolygon", "MultiLineString"]
+      },
+      "processing": [
+        "geometry:calculate_centroid"
+      ],
+      "render": {
+        "type": "circle",
+        "scaleBasis": 8,
+        "scaleFactor": 40000,
+        "defaultStyle": {
+          "raw": {
+            "circle-color": "#f89ab7"
+          },
+          "raw-highlight": {
+            "circle-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#f89ab7"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
+      }
     }
   ]
 }
