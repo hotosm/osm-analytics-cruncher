@@ -42,7 +42,7 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
             var x = req.params.x;
             var y = req.params.y;
 
-            console.log('get tile %d, %d, %d', z, x, y);
+            console.log('get tile %s/%d/%d/%d', analytics.layers[layerIndex].name, z, x, y);
 
             source.getTile(z, x, y, function(err, tile, headers) {
                 if (err) {
