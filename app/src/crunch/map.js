@@ -75,6 +75,10 @@ module.exports = function _(tileLayers, tile, writeData, done) {
               _timestamp: feature.properties['@timestamp']
             }
             output.properties._userExperience = users[user][analytics.layers[layerIndex].experienceField];
+            if (analytics.layers[layerIndex].processing &&
+                analytics.layers[layerIndex].processing.indexOf("geometry:calculate_centroid") !== -1) {
+              output.geometry = turf.centroid(feature).geometry;
+            }
             return output;
         });
     });
