@@ -41,8 +41,8 @@
       },
       "render": {
         "type": "fill",
-        "scaleBasis": 4,
-        "scaleFactor": 51200,
+        "scaleBasis": 2.5,
+        "scaleFactor": 200000,
         "defaultStyle": {
           "raw": {
             "fill-color": "#FDB863",
@@ -72,8 +72,8 @@
       },
       "render": {
         "type": "line",
-        "scaleBasis": 8,
-        "scaleFactor": 80000,
+        "scaleBasis": 3.5,
+        "scaleFactor": 100000,
         "defaultStyle": {
           "raw": {
             "line-color": "#9e9ac8"
@@ -101,8 +101,8 @@
       },
       "render": {
         "type": "line",
-        "scaleBasis": 8,
-        "scaleFactor": 80000,
+        "scaleBasis": 3.5,
+        "scaleFactor": 20000,
         "defaultStyle": {
           "raw": {
             "line-color": "#c89ab7"
@@ -133,8 +133,8 @@
       ],
       "render": {
         "type": "circle",
-        "scaleBasis": 8,
-        "scaleFactor": 40000,
+        "scaleBasis": 2.5,
+        "scaleFactor": 50000,
         "defaultStyle": {
           "raw": {
             "circle-color": "#f89ab7"
