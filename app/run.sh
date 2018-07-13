@@ -4,61 +4,38 @@
 # this is an example script for how to invoke  osm-analytics-cruncher to
 # regenerate vector tiles for osm-analytics from osm-qa-tiles
 #
-# config parameters:
+# config parameters (can be customized by setting shell environment variables):
+#
+# * ANALYTICS_FILE - file defining analytics job (e.g. what layers to crunch),
+#                    see example-analytics.json for an example
 # * WORKING_DIR - working directory where intermediate data is stored
-#                 (requires at least around ~160 GB for planet wide calc.)
-# * RESULTS_DIR - directory where resulting .mbtiles files are stored
-# * SERVER_SCRIPT - node script that serves the .mbtiles (assumed to be already
-#                   started with `forever`)
+#                 (requires at least around ~200 GB for planet wide crunches)
+# * RESULTS_DIR - directory where resulting .mbtiles files are put (existing
+#                 result mbtiles files in that directory are replaced)
+# * OSMQATILES_SOURCE - URL to fetch osmqatiles from
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# config
-WORKING_DIR=./data
-RESULTS_DIR=./results
-SERVER_SCRIPT=./server/serve.js
+# configs
+ANALYTICS_FILE=${ANALYTICS_FILE:-"analytics.json"}
+WORKING_DIR=${WORKING_DIR:-"./data"}
+RESULTS_DIR=${RESULTS_DIR:-"./results"}
+OSMQATILES_SOURCE=${OSMQATILES_SOURCE:-"https://s3.amazonaws.com/mapbox/osm-qa-tiles-production/latest.planet.mbtiles.gz"}
 
 # clean up
 trap cleanup EXIT
 function cleanup {
-  rm -rf $WORKING_DIR/osm-analytics-cruncher
+  rm -rf $WORKING_DIR/planet.mbtiles $WORKING_DIR/cruncher/
 }
 
-# init repo
-# cd $WORKING_DIR
-# git clone https://github.com/hotosm/osm-analytics-cruncher
-# cd osm-analytics-cruncher
-# npm install --silent
+mkdir -p $WORKING_DIR/cruncher/
 
 # download latest planet from osm-qa-tiles
-curl https://s3.amazonaws.com/mapbox/osm-qa-tiles-production/latest.planet.mbtiles.gz --silent | gzip -d > planet.mbtiles
+curl $OSMQATILES_SOURCE --silent | gzip -d > $WORKING_DIR/planet.mbtiles
 
-# generate user experience data
-./experiences.sh planet.mbtiles
-
-# generate osm-analytics data
-# buildings
-./crunch.sh planet.mbtiles buildings 64
-cp buildings.mbtiles $RESULTS_DIR/buildings.mbtiles.tmp
-rm $RESULTS_DIR/buildings.mbtiles -f
-mv $RESULTS_DIR/buildings.mbtiles.tmp $RESULTS_DIR/buildings.mbtiles
-# TODO: add condition
-#-forever restart $SERVER_SCRIPT
-rm buildings.mbtiles
-# highways
-./crunch.sh planet.mbtiles highways 64
-cp highways.mbtiles $RESULTS_DIR/highways.mbtiles.tmp
-rm $RESULTS_DIR/highways.mbtiles -f
-mv $RESULTS_DIR/highways.mbtiles.tmp $RESULTS_DIR/highways.mbtiles
-# TODO: add condition
-#-forever restart $SERVER_SCRIPT
-rm highways.mbtiles
-# waterways
-./crunch.sh planet.mbtiles waterways 32
-cp waterways.mbtiles $RESULTS_DIR/waterways.mbtiles.tmp
-rm $RESULTS_DIR/waterways.mbtiles -f
-mv $RESULTS_DIR/waterways.mbtiles.tmp $RESULTS_DIR/waterways.mbtiles
-# TODO: add condition
-#-forever restart $SERVER_SCRIPT
-rm waterways.mbtiles
-
-rm planet.mbtiles
+# crunch osm-analytics data
+./crunch.sh $WORKING_DIR/planet.mbtiles $ANALYTICS_FILE $WORKING_DIR/cruncher/
+for f in $WORKING_DIR/cruncher/*.mbtiles; do
+  mv $f $RESULTS_DIR/$(basename $f).tmp
+  rm $RESULTS_DIR/$(basename $f) -f
+  mv $RESULTS_DIR/$(basename $f).tmp $RESULTS_DIR/$(basename $f)
+done

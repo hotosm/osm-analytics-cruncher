@@ -4,7 +4,7 @@ Uses [osm-qa-tiles](http://osmlab.github.io/osm-qa-tiles/) to calculate a few st
 
 Usage:
 
-    node oqt-user-experience/index.js <path-to-osmqatiles.mbtiles> > userexperience.json
+    node oqt-user-experience/index.js <path-to-osmqatiles.mbtiles> <path-to-analytics.json> > userexperience.json
 
 Output:
 

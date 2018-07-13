@@ -17,39 +17,28 @@ Alternatively, you can install and use `docker` and `docker-compose`.
 
 The tool is split in two parts: data generation and serving.
 
-## Data generation - Main commands
+## Data generation
 
-The data generation is handled by multiple commands, each responsible for a subset of the whole data. 
-Some convenience commands are provided, which run all tasks at once. Feel free to fine-tune them to your needs.
+Invoking `app/run.sh` (or `./docker.sh gen` command in a docker environment) starts the process to re-generate osm-analytics data. It will automatically download a fresh osm-qa-tiles planet file, crunch the data and stores the results in a supplied directory.
 
-### Natively
+### Environment Variables
 
-See `app/run.sh` for an example invocation of all the data generation scripts.
+The data generation can be configured by setting the following shell environment variables:
 
-### Docker
+* `ANALYTICS_FILE` – file defining analytics job (e.g. what layers to crunch), see example-analytics.json for an example
+* `WORKING_DIR` – working directory where intermediate data is stored
+* `RESULTS_DIR` – directory where resulting .mbtiles files are stored
+* `OSMQATILES_SOURCE` – URL to fetch osmqatiles from
 
-The `./docker.sh gen` command will run the above `app/run.sh` command in a docker environment.
+### `analytics.json`
 
-## Data generation - Command breakdown
-
-There are multiple commands that generate different parts of the data:
-
-### `app/experiences.sh <path-to-osmqatiles.mbtiles>`
-
-Generates a user experience file (`experiences.json`) to be used with `run.sh`.
-
-### `app/crunch.sh <path-to-osmqatiles.mbtiles> <job> [<binningfactor>]`
-
-Creates vector tiles for a specific feature type (e.g. buildings). Requires an experience data file (see above). A *job* is defined in the corresponding `<job>.json` file. See `building.json` for an example. The *binningfactor* determines how fine the grid at lower zoom levels should be calculated (default: 64).
-
-Output is `<job>.mbtiles`.
-
+The data generation process is controlled via a single *"analytics definition file"*, which specifies which parts of the OpenStreetMap data has to be processed in which way and how the result should be interpreted. An example can be found at [`app/example-analytics.json`](app/example-analytics.json). Further details about this file can be found in the [specification document](`documentation/analytics-json.md`).
 
 ## Serving data
 
 ### Natively
 
-The `app/server/serve.js` script is an example for how to provide the data to the osm-analytics frontend over the web.
+The `app/server/serve.js` script is an example for how to provide the data to the osm-analytics frontend over the web. It expects the directory where the result of the crunching step is stored and the analytics definition json file as parameters.
 
 ### With docker
 
@@ -69,7 +58,7 @@ with different hosting services with no code changes, and the cruncher can be se
 
 ## Hardware profile
 
-The crunching process is a resource-intensive task, requiring significant CPU, memory and storage to execute. 
+The crunching process is a resource-intensive task, requiring significant CPU, memory and storage to execute.
 To the date of these tests, the cruncher required 16 processing cores, 30GB of RAM and 100GB of storage to process the data in around 6h.
 
 The necessary storage space depends on the amount of data input and output, so it may need to vary if the OSM tiles grow in size, or if more features need to be processed.

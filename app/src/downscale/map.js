@@ -1,8 +1,7 @@
-
 'use strict';
 
 var mbtiles = require('@mapbox/tile-reduce/src/mbtiles.js'); // todo: hacky?
-var mbtilesPromises = require('./mbtiles-promises');
+var mbtilesPromises = require('../mbtiles-promises');
 var queue = require('queue-async');
 var binarysplit = require('binary-split');
 var turf = require('turf');
@@ -14,8 +13,8 @@ var vtpbf = require('vt-pbf');
 var zlib = require('zlib');
 var MBTiles = require('mbtiles');
 
-const intermediateDir = './intermediate/';
 
+var outputDir = global.mapOptions.outputDir + '/';
 var binningFactor = global.mapOptions.binningFactor; // number of slices in each direction
 var mbtilesPath = global.mapOptions.mbtilesPath;
 
@@ -43,7 +42,7 @@ initQueue.defer(function(cb) {
     }).catch(cb);
 });
 initQueue.defer(function(cb) {
-    mbtilesPromises.openWrite(intermediateDir + 'out.tmp.'+process.pid+'.mbtiles')
+    mbtilesPromises.openWrite(outputDir + 'downscaled.'+process.pid+'.mbtiles')
     .then(function(dbHandle) {
         outMbtiles = dbHandle;
         cb();

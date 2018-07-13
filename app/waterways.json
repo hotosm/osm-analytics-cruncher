@@ -1,8 +1,0 @@
-{
-    "geometry": "LineString",
-    "tag": "waterway",
-    "experience": {
-        "file": "./experiences.json",
-        "field": "waterways"
-    }
-}

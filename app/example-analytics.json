@@ -1,0 +1,155 @@
+{
+  "experienceFields": [
+    {
+      "name": "objects",
+      "metric": "count"
+    },
+    {
+      "name": "buildings",
+      "filter": {
+        "tagKey": "building",
+        "geometryType": "Polygon"
+      },
+      "metric": "count"
+    },
+    {
+      "name": "highways",
+      "filter": {
+        "tagKey": "highway",
+        "geometryType": "LineString"
+      },
+      "metric": "length"
+    },
+    {
+      "name": "waterways",
+      "filter": {
+        "tagKey": "waterway",
+        "geometryType": "LineString"
+      },
+      "metric": "length"
+    }
+  ],
+  "layers": [
+    {
+      "name": "buildings",
+      "title": "Buildings",
+      "description": "Polygons with a building=* tag",
+      "experienceField": "buildings",
+      "filter": {
+        "tagKey": "building",
+        "geometry": "Polygon"
+      },
+      "render": {
+        "type": "fill",
+        "scaleBasis": 2.5,
+        "scaleFactor": 200000,
+        "defaultStyle": {
+          "raw": {
+            "fill-color": "#FDB863",
+            "fill-outline-color": "#E08214"
+          },
+          "raw-highlight": {
+            "fill-color": "#5CBAD8",
+            "fill-outline-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#FDB863"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
+      }
+    },
+    {
+      "name": "highways",
+      "title": "Roads",
+      "description": "Lines with a highway=* tag (highways & roads, but also tracks and paths)",
+      "experienceField": "highways",
+      "filter": {
+        "tagKey": "highway",
+        "geometry": "LineString"
+      },
+      "render": {
+        "type": "line",
+        "scaleBasis": 3.5,
+        "scaleFactor": 100000,
+        "defaultStyle": {
+          "raw": {
+            "line-color": "#9e9ac8"
+          },
+          "raw-highlight": {
+            "line-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#9e9ac8"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
+      }
+    },
+    {
+      "name": "waterways",
+      "title": "Rivers",
+      "description": "Lines with a waterway=* tag (waterways, rivers & streams)",
+      "experienceField": "waterways",
+      "filter": {
+        "tagKey": "waterway",
+        "geometry": "LineString"
+      },
+      "render": {
+        "type": "line",
+        "scaleBasis": 3.5,
+        "scaleFactor": 20000,
+        "defaultStyle": {
+          "raw": {
+            "line-color": "#c89ab7"
+          },
+          "raw-highlight": {
+            "line-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#c89ab7"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
+      }
+    },
+    {
+      "name": "amenities",
+      "title": "Amenities",
+      "description": "Objects with an amenity=* tag",
+      "experienceField": "objects",
+      "filter": {
+        "tagKey": "amenity",
+        "geometry": ["LineString", "Polygon", "Point", "MultiPolygon", "MultiLineString"]
+      },
+      "processing": [
+        "geometry:calculate_centroid"
+      ],
+      "render": {
+        "type": "circle",
+        "scaleBasis": 2.5,
+        "scaleFactor": 50000,
+        "defaultStyle": {
+          "raw": {
+            "circle-color": "#f89ab7"
+          },
+          "raw-highlight": {
+            "circle-color": "#5CBAD8"
+          },
+          "aggregated": {
+            "fill-color": "#f89ab7"
+          },
+          "aggregated-highlight": {
+            "fill-color": "#5CBAD8"
+          }
+        }
+      }
+    }
+  ]
+}
