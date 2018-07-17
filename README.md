@@ -32,7 +32,7 @@ The data generation can be configured by setting the following shell environment
 
 ### `analytics.json`
 
-The data generation process is controlled via a single *"analytics definition file"*, which specifies which parts of the OpenStreetMap data has to be processed in which way and how the result should be interpreted. An example can be found at [`app/example-analytics.json`](app/example-analytics.json). Further details about this file can be found in the [specification document](documentation/analytics-json.md).
+The data generation process is controlled via a single *"analytics definition file"*, which specifies which parts of the OpenStreetMap data has to be processed in which way and how the result should be interpreted. An example can be found at [`app/example-analytics.json`](app/example-analytics.json). Further details about this file can be found in the [specification document](https://github.com/hotosm/osm-analytics-config/blob/master/analytics-json.md).
 
 ## Serving data
 
