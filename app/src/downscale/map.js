@@ -179,6 +179,11 @@ function processMeta(tile, writeData, done) {
                 bin.properties._userExperienceMin = stats.quantile(experiences, 0.25);
                 bin.properties._userExperienceMax = stats.quantile(experiences, 0.75);
                 bin.properties._userExperiences = lodash.sampleSize(experiences, 16).join(';');
+                var uids = _bins.reduce(function(prev, _bin) {
+                    var binUids = _bin.properties._uids.split(';').map(Number);
+                    return prev.concat(binUids.slice(0, 16*Math.round(_bin.properties._count/maxBinCount)));
+                }, []);
+                bin.properties._uids = lodash.sampleSize(uids, 16).join(';');
 
                 output.features.push(bin);
             }

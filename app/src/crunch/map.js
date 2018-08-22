@@ -171,7 +171,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
                 binObjects[index].push({
                     //id: feature.properties._osm_way_id, // todo: rels??
                     _timestamp: feature.properties._timestamp,
-                    _userExperience: feature.properties._userExperience
+                    _userExperience: feature.properties._userExperience,
+                    _uid: feature.properties._uid
                 });
             });
         });
@@ -195,6 +196,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             feature.properties._userExperienceMin = stats.quantile(experiences, 0.25);
             feature.properties._userExperienceMax = stats.quantile(experiences, 0.75);
             feature.properties._userExperiences = lodash.sampleSize(experiences, 16).join(';');
+            var uids = lodash.map(binObjects[index], '_uid');
+            feature.properties._uids = lodash.sampleSize(uids, 16).join(';');
         });
         output.features = output.features.filter(function(feature) {
             return feature.properties._count > 0;
