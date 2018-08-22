@@ -7,23 +7,34 @@ const queue = require('queue-async');
 require('mbtiles').registerProtocols(tilelive);
 
 const mbtilesDir = process.argv.length >= 2 ? process.argv[2] : null;
-const analyticsFile = process.argv.length >= 3 ? process.argv[3] : null;
 
 if (mbtilesDir === null) {
     console.error('Error: mbtiles directory not specified');
     process.exit(1);
 }
-if (analyticsFile === null) {
-    console.error('Error: analytics definition file not specified');
-    process.exit(1);
-}
 
-const analytics = JSON.parse(fs.readFileSync(analyticsFile));
 
 var loadMbtilesQueue = queue();
-analytics.layers.forEach(function(layer) {
-    console.log('Openning', `mbtiles://${mbtilesDir}/${layer.name}.mbtiles`);
-    loadMbtilesQueue.defer(tilelive.load, `mbtiles://${mbtilesDir}/${layer.name}.mbtiles`);
+var layers = fs.readdirSync(mbtilesDir)
+.filter(function(subdir) {
+    // ignore non-mbtiles files
+    return subdir.match(/^([0-9]+)$/);
+}).map(function(subdir) {
+    return fs.readdirSync(mbtilesDir + '/' + subdir)
+        .filter(function(file) {
+            return file.match(/\.mbtiles$/);
+        })
+        .map(function(file) {
+            return {
+                file: subdir + '/' + file,
+                name: file.replace('.mbtiles', ''),
+                year: subdir
+            };
+        });
+}).reduce(function(acc, x) { return acc.concat(x)}, []);
+layers.forEach(function(layer) {
+    console.log('Openning', `mbtiles://${mbtilesDir}/${layer.file}`);
+    loadMbtilesQueue.defer(tilelive.load, `mbtiles://${mbtilesDir}/${layer.file}`);
 })
 
 loadMbtilesQueue.awaitAll(function(err, sources) {
@@ -36,13 +47,13 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
     });
 
     sources.forEach(function(source, layerIndex) {
-        app.get(`/${analytics.layers[layerIndex].name}/:z/:x/:y.pbf`, function(req, res) {
+        app.get(`/${layers[layerIndex].year}/${layers[layerIndex].name}/:z/:x/:y.pbf`, function(req, res) {
 
             var z = req.params.z;
             var x = req.params.x;
             var y = req.params.y;
 
-            console.log('get tile %s/%d/%d/%d', analytics.layers[layerIndex].name, z, x, y);
+            console.log('get tile %s/%s/%d/%d/%d', layers[layerIndex].year, layers[layerIndex].name, z, x, y);
 
             source.getTile(z, x, y, function(err, tile, headers) {
                 if (err) {
@@ -57,11 +68,13 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
         });
     });
 
-    app.set('port', 7778+1);
-    app.get('/analytics.json', function(req, res) {
-      res.json(analytics);
+    app.set('port', 7778+2);
+    app.get('/layers.json', function(req, res) {
+      res.json(layers);
     });
     http.createServer(app).listen(app.get('port'), function() {
         console.log('Express server listening on port ' + app.get('port'));
     });
 });
+
+
