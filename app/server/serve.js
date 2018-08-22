@@ -8,6 +8,7 @@ require('mbtiles').registerProtocols(tilelive);
 
 const mbtilesDir = process.argv.length >= 2 ? process.argv[2] : null;
 const analyticsFile = process.argv.length >= 3 ? process.argv[3] : null;
+const port = process.argv.length >= 4 ? +process.argv[4] : 7779;
 
 if (mbtilesDir === null) {
     console.error('Error: mbtiles directory not specified');
@@ -57,7 +58,7 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
         });
     });
 
-    app.set('port', 7778+1);
+    app.set('port', port);
     app.get('/analytics.json', function(req, res) {
       res.json(analytics);
     });

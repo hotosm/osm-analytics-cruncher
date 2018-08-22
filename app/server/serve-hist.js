@@ -7,6 +7,7 @@ const queue = require('queue-async');
 require('mbtiles').registerProtocols(tilelive);
 
 const mbtilesDir = process.argv.length >= 2 ? process.argv[2] : null;
+const port = process.argv.length >= 3 ? +process.argv[3] : 7780;
 
 if (mbtilesDir === null) {
     console.error('Error: mbtiles directory not specified');
@@ -68,7 +69,7 @@ loadMbtilesQueue.awaitAll(function(err, sources) {
         });
     });
 
-    app.set('port', 7778+2);
+    app.set('port', port);
     app.get('/layers.json', function(req, res) {
       res.json(layers);
     });
