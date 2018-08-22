@@ -72,7 +72,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             var user = feature.properties['@uid'];
             output.properties = {
               _uid: user,
-              _timestamp: feature.properties['@timestamp']
+              _timestamp: feature.properties['@timestamp'],
+              _tagValue: feature.properties[analytics.layers[layerIndex].filter.tagKey]
             }
             output.properties._userExperience = users[user][analytics.layers[layerIndex].experienceField];
             if (analytics.layers[layerIndex].processing &&
@@ -172,7 +173,8 @@ module.exports = function _(tileLayers, tile, writeData, done) {
                     //id: feature.properties._osm_way_id, // todo: rels??
                     _timestamp: feature.properties._timestamp,
                     _userExperience: feature.properties._userExperience,
-                    _uid: feature.properties._uid
+                    _uid: feature.properties._uid,
+                    _tagvalue: feature.properties._tagValue
                 });
             });
         });
@@ -189,15 +191,18 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             //feature.properties.osm_way_ids = binObjects[index].map(function(o) { return o.id; }).join(';');
             // ^ todo: do only partial counts for objects spanning between multiple bins?
             var timestamps = lodash.map(binObjects[index], '_timestamp');
+            var sampleIndices = lodash.sampleSize(Array.apply(null, {length: timestamps.length}).map(Number.call, Number), 16);
             feature.properties._timestampMin = stats.quantile(timestamps, 0.25);
             feature.properties._timestampMax = stats.quantile(timestamps, 0.75);
-            feature.properties._timestamps = lodash.sampleSize(timestamps, 16).join(';');
+            feature.properties._timestamps = sampleIndices.map(function(idx) { return timestamps[idx]; }).join(';');
             var experiences = lodash.map(binObjects[index], '_userExperience');
             feature.properties._userExperienceMin = stats.quantile(experiences, 0.25);
             feature.properties._userExperienceMax = stats.quantile(experiences, 0.75);
-            feature.properties._userExperiences = lodash.sampleSize(experiences, 16).join(';');
+            feature.properties._userExperiences = sampleIndices.map(function(idx) { return experiences[idx]; }).join(';');
             var uids = lodash.map(binObjects[index], '_uid');
-            feature.properties._uids = lodash.sampleSize(uids, 16).join(';');
+            feature.properties._uids = sampleIndices.map(function(idx) { return uids[idx]; }).join(';');
+            var tagValues = lodash.map(binObjects[index], '_tagValue');
+            feature.properties._tagValues = sampleIndices.map(function(idx) { return tagValues[idx]; }).join(';');
         });
         output.features = output.features.filter(function(feature) {
             return feature.properties._count > 0;

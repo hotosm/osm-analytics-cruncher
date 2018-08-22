@@ -169,21 +169,27 @@ function processMeta(tile, writeData, done) {
                     var binTimestamps = _bin.properties._timestamps.split(';').map(Number);
                     return prev.concat(binTimestamps.slice(0, 16*Math.round(_bin.properties._count/maxBinCount)));
                 }, []);
+                var sampleIndices = lodash.sampleSize(Array.apply(null, {length: timestamps.length}).map(Number.call, Number), 16);
                 bin.properties._timestampMin = stats.quantile(timestamps, 0.25);
                 bin.properties._timestampMax = stats.quantile(timestamps, 0.75);
-                bin.properties._timestamps = lodash.sampleSize(timestamps, 16).join(';');
+                bin.properties._timestamps = sampleIndices.map(function(idx) { return timestamps[idx]; }).join(';');
                 var experiences = _bins.reduce(function(prev, _bin) {
                     var binExperiences = _bin.properties._userExperiences.split(';').map(Number);
                     return prev.concat(binExperiences.slice(0, 16*Math.round(_bin.properties._count/maxBinCount)));
                 }, []);
                 bin.properties._userExperienceMin = stats.quantile(experiences, 0.25);
                 bin.properties._userExperienceMax = stats.quantile(experiences, 0.75);
-                bin.properties._userExperiences = lodash.sampleSize(experiences, 16).join(';');
+                bin.properties._userExperiences = sampleIndices.map(function(idx) { return experiences[idx]; }).join(';');
                 var uids = _bins.reduce(function(prev, _bin) {
                     var binUids = _bin.properties._uids.split(';').map(Number);
                     return prev.concat(binUids.slice(0, 16*Math.round(_bin.properties._count/maxBinCount)));
                 }, []);
-                bin.properties._uids = lodash.sampleSize(uids, 16).join(';');
+                bin.properties._uids = sampleIndices.map(function(idx) { return uids[idx]; }).join(';');
+                var tagValues = _bins.reduce(function(prev, _bin) {
+                    var binTagValues = _bin.properties._tagValues.split(';');
+                    return prev.concat(binTagValues.slice(0, 16*Math.round(_bin.properties._count/maxBinCount)));
+                }, []);
+                bin.properties._tagValues = sampleIndices.map(function(idx) { return tagValues[idx]; }).join(';');
 
                 output.features.push(bin);
             }
