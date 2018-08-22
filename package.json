@@ -22,7 +22,9 @@
   },
   "homepage": "https://github.com/hotosm/osm-analytics-cruncher",
   "dependencies": {
+    "@mapbox/tile-reduce": "git+https://github.com/mapbox/tile-reduce.git#master",
     "binary-split": "^1.0.1",
+    "express": "^4.13.4",
     "geojson-vt": "^2.4.0",
     "lineclip": "^1.1.5",
     "lodash": "^4.10.0",
@@ -31,11 +33,8 @@
     "rbush": "^1.4.2",
     "simple-statistics": "^2.4.0",
     "sphericalmercator": "^1.0.4",
-    "superagent": "^1.8.3",
-    "@mapbox/tile-reduce": "git+https://github.com/mapbox/tile-reduce.git#master",
+    "tilelive": "^5.12.1",
     "turf": "^2.0.2",
-    "vt-pbf": "^2.1.2",
-    "express": "^4.13.4",
-    "tilelive": "^5.12.1"
+    "vt-pbf": "^2.1.2"
   }
 }
