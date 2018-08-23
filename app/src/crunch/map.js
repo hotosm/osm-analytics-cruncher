@@ -19,6 +19,7 @@ var binningFactor = global.mapOptions.binningFactor; // number of slices in each
 
 var analytics = JSON.parse(fs.readFileSync(global.mapOptions.analyticsPath));
 analytics.layers.forEach(function(layer) {
+    layer.filterKey = layer.filter.tagKey;
     layer.filter = applyFilter(layer.filter);
 });
 
@@ -73,7 +74,7 @@ module.exports = function _(tileLayers, tile, writeData, done) {
             output.properties = {
               _uid: user,
               _timestamp: feature.properties['@timestamp'],
-              _tagValue: feature.properties[analytics.layers[layerIndex].filter.tagKey]
+              _tagValue: feature.properties[analytics.layers[layerIndex].filterKey]
             }
             output.properties._userExperience = users[user][analytics.layers[layerIndex].experienceField];
             if (analytics.layers[layerIndex].processing &&
@@ -174,7 +175,7 @@ module.exports = function _(tileLayers, tile, writeData, done) {
                     _timestamp: feature.properties._timestamp,
                     _userExperience: feature.properties._userExperience,
                     _uid: feature.properties._uid,
-                    _tagvalue: feature.properties._tagValue
+                    _tagValue: feature.properties._tagValue
                 });
             });
         });
