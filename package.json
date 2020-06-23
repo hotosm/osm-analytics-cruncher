@@ -27,7 +27,7 @@
     "express": "^4.13.4",
     "geojson-vt": "^2.4.0",
     "lineclip": "^1.1.5",
-    "lodash": "^4.10.0",
+    "lodash": "^4.17.13",
     "mbtiles": "^0.8.2",
     "queue-async": "^1.2.1",
     "rbush": "^1.4.2",
