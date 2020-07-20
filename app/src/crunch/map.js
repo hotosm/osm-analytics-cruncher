@@ -70,10 +70,10 @@ module.exports = function _(tileLayers, tile, writeData, done) {
     filteredData = filteredData.map(function(features, layerIndex) {
         return features.map(function(feature) {
             var output = Object.assign({}, feature);
-            var user = feature.properties['@uid'];
+            var user = feature.properties['_uid'];
             output.properties = {
               _uid: user,
-              _timestamp: feature.properties['@timestamp'],
+              _timestamp: feature.properties['_timestamp'],
               _tagValue: feature.properties[analytics.layers[layerIndex].filterKey]
             }
             output.properties._userExperience = users[user][analytics.layers[layerIndex].experienceField];
