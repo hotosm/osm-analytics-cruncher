@@ -14,7 +14,7 @@ module.exports = function(tileLayers, tile, writeData, done) {
     var users = {};
 
     layer.features.forEach(function(val) {
-        var userId = val.properties['@uid'];
+        var userId = val.properties['_uid'];
         if (!users[userId]) {
             var emptyExperienceObject = { objects:0 };
             analytics.experienceFields.forEach(function(experience) {
